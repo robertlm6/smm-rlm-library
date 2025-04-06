@@ -16,6 +16,7 @@ import java.awt.geom.QuadCurve2D;
 public class MiCurva extends MiShape{
 
     private QuadCurve2D geomCurva;
+    public Boolean pControl;
     
     public MiCurva(){}
     
@@ -38,12 +39,32 @@ public class MiCurva extends MiShape{
 
     @Override
     public void setLocation(Point2D pos) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        double dx = pos.getX() - this.geomCurva.getX1();
+        double dy = pos.getY() - this.geomCurva.getY1();
+        Point2D newp2 = new Point2D.Double(this.geomCurva.getX2() + dx, this.geomCurva.getY2() + dy);
+        Point2D newcp = new Point2D.Double(this.geomCurva.getCtrlX()+ dx, this.geomCurva.getCtrlY() + dy);
+        this.geomCurva.setCurve(pos, newcp, newp2);
     }
 
     @Override
     public boolean contains(Point2D p) {
-        throw new UnsupportedOperationException("Not supported yet."); 
+        return this.geomCurva.contains(p); 
     }
-    
+
+    @Override
+    public void updateShape(Point2D pEnd) {
+        if(!this.pControl) {
+            this.geomCurva.setCurve(this.geomCurva.getP1(), pEnd, pEnd);
+        } else {
+            this.geomCurva.setCurve(this.geomCurva.getP1(), pEnd, this.geomCurva.getP2());
+        }
+    }
+
+    public Boolean getpControl() {
+        return pControl;
+    }
+
+    public void setpControl(Boolean pControl) {
+        this.pControl = pControl;
+    }
 }

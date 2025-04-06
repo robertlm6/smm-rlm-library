@@ -6,6 +6,7 @@ package sm.rlm.graficos;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
 
 /**
  *
@@ -13,6 +14,7 @@ import java.awt.Graphics2D;
  */
 public abstract class MiShapeRellenable extends MiShape{
     protected Boolean rellena;
+    protected Point2D pressedPoint;
     
     public MiShapeRellenable(){}
     

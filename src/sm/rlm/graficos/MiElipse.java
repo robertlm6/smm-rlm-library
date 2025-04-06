@@ -15,13 +15,14 @@ import java.awt.geom.Point2D;
  */
 public class MiElipse extends MiShapeRellenable{
     
-    private Ellipse2D geomElipse;
+    private Ellipse2D geomElipse = new Ellipse2D.Double();
     
     public MiElipse() {}
     
     public MiElipse(Color color, Integer grosor, Boolean transparente, 
                    Boolean alisada, Boolean rellena, Point2D p1, Point2D p2) {
         super(color, grosor, transparente, alisada, rellena);
+        this.pressedPoint = p1;
         this.geomElipse.setFrameFromDiagonal(p1, p2);
     }
 
@@ -42,7 +43,7 @@ public class MiElipse extends MiShapeRellenable{
 
     @Override
     public void setLocation(Point2D pos) {
-        this.geomElipse.setFrameFromDiagonal(pos.getX(), pos.getY(), 
+        this.geomElipse.setFrame(pos.getX(), pos.getY(), 
                 this.geomElipse.getWidth(), this.geomElipse.getHeight()); 
     }
 
@@ -51,4 +52,8 @@ public class MiElipse extends MiShapeRellenable{
         return this.geomElipse.contains(p); 
     }
     
+    @Override
+    public void updateShape(Point2D pEnd) {
+        this.geomElipse.setFrameFromDiagonal(this.pressedPoint, pEnd);
+    }
 }

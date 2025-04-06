@@ -52,6 +52,8 @@ public abstract class MiShape {
     public abstract void setLocation(Point2D pos);
     
     public abstract boolean contains(Point2D p);
+    
+    public abstract void updateShape(Point2D pEnd);
 
     public Color getColor() {
         return color;

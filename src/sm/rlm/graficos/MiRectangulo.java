@@ -22,6 +22,7 @@ public class MiRectangulo extends MiShapeRellenable{
     public MiRectangulo(Color color, Integer grosor, Boolean transparente, 
                    Boolean alisada, Boolean rellena, Point2D p1, Point2D p2) {
         super(color, grosor, transparente, alisada, rellena);
+        this.pressedPoint = p1;
         this.geomRectangulo.setFrameFromDiagonal(p1, p2);
     }
 
@@ -42,7 +43,7 @@ public class MiRectangulo extends MiShapeRellenable{
 
     @Override
     public void setLocation(Point2D pos) {
-        this.geomRectangulo.setFrameFromDiagonal(pos.getX(), pos.getY(), 
+        this.geomRectangulo.setFrame(pos.getX(), pos.getY(), 
                 this.geomRectangulo.getWidth(), this.geomRectangulo.getHeight()); 
     }
 
@@ -51,4 +52,8 @@ public class MiRectangulo extends MiShapeRellenable{
         return this.geomRectangulo.contains(p); 
     }
     
+    @Override
+    public void updateShape(Point2D pEnd) {
+        this.geomRectangulo.setFrameFromDiagonal(this.pressedPoint, pEnd);
+    }
 }

@@ -15,7 +15,7 @@ import java.awt.geom.Point2D;
  */
 public class MiLinea extends MiShape{
     
-    private Line2D geomLinea;
+    private Line2D geomLinea = new Line2D.Double();
     
     public MiLinea(){}
     
@@ -46,6 +46,11 @@ public class MiLinea extends MiShape{
     @Override
     public boolean contains(Point2D p) {
         return isNear(p);
+    }
+    
+    @Override
+    public void updateShape(Point2D pEnd) {
+        this.geomLinea.setLine(this.geomLinea.getP1(), pEnd);
     }
     
     private boolean isNear(Point2D p) {

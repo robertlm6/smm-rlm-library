@@ -4,17 +4,131 @@
  */
 package sm.rlm.iu;
 
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.geom.Point2D;
+import java.util.ArrayList;
+import java.util.List;
+import sm.rlm.enums.HerramientaDibujo;
+import sm.rlm.graficos.MiCurva;
+import sm.rlm.graficos.MiElipse;
+import sm.rlm.graficos.MiLinea;
+import sm.rlm.graficos.MiRectangulo;
+import sm.rlm.graficos.MiShape;
+
 /**
  *
  * @author rober
  */
 public class Lienzo2D extends javax.swing.JPanel {
-
+    
+    private List<MiShape> vShape = new ArrayList();
+    private MiShape forma = new MiLinea();
+    private HerramientaDibujo herramienta = HerramientaDibujo.LINE;
+    private Color color = Color.BLACK;
+    private Integer grosor = 0;
+    private Boolean relleno = false;
+    private Boolean mover = false;
+    private Boolean alisado = false;
+    private Boolean transparente = false;
+    
+    private Integer pasosCurva = 0;
+    private Point2D puntoAncla = null;
     /**
      * Creates new form Lienzo2D
      */
     public Lienzo2D() {
         initComponents();
+    }
+    
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+        Graphics2D g2d = (Graphics2D) g;
+        
+        for(MiShape s: vShape) {
+            s.draw(g2d);
+        }
+    }
+    
+    private MiShape getSelectedShape(Point2D p) {
+        List<MiShape> reversedList = this.vShape.reversed();
+        for (MiShape s: reversedList) {
+            if (s.contains(p)) return s;
+        }
+        
+        return null;
+    }
+    
+    private void moverFiguraConAncla(Point2D pEvt) {
+        double dx = pEvt.getX() - this.puntoAncla.getX();
+        double dy = pEvt.getY() - this.puntoAncla.getY();
+
+        Point2D posActual = this.forma.getLocation();
+
+        Point2D nuevaPos = new Point2D.Double(posActual.getX() + dx, posActual.getY() + dy);
+
+        this.forma.setLocation(nuevaPos);
+
+        this.puntoAncla = pEvt;
+    }
+
+    public HerramientaDibujo getHerramienta() {
+        return herramienta;
+    }
+
+    public void setHerramienta(HerramientaDibujo herramienta) {
+        this.herramienta = herramienta;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Boolean getRelleno() {
+        return relleno;
+    }
+
+    public void setRelleno(Boolean relleno) {
+        this.relleno = relleno;
+    }
+
+    public Boolean getMover() {
+        return mover;
+    }
+
+    public void setMover(Boolean mover) {
+        this.mover = mover;
+    }
+
+    public Boolean getAlisado() {
+        return alisado;
+    }
+
+    public void setAlisado(Boolean alisado) {
+        this.alisado = alisado;
+    }
+
+    public Boolean getTransparente() {
+        return transparente;
+    }
+
+    public void setTransparente(Boolean transparente) {
+        this.transparente = transparente;
+    }
+
+    public Integer getGrosor() {
+        return grosor;
+    }
+
+    public void setGrosor(Integer grosor) {
+        this.grosor = grosor;
     }
 
     /**
@@ -25,6 +139,20 @@ public class Lienzo2D extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
+
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseDragged(java.awt.event.MouseEvent evt) {
+                formMouseDragged(evt);
+            }
+        });
+        addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                formMousePressed(evt);
+            }
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                formMouseReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -37,6 +165,72 @@ public class Lienzo2D extends javax.swing.JPanel {
             .addGap(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMousePressed
+        if (this.mover) {
+            this.forma = this.getSelectedShape(evt.getPoint());
+            if(this.forma != null) {
+                this.puntoAncla = evt.getPoint();
+            }
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
+        } else {
+            switch(herramienta){
+            case HerramientaDibujo.LINE:
+                this.forma = new MiLinea(this.color, this.grosor, 
+                                         this.transparente, this.alisado, 
+                                         evt.getPoint(), evt.getPoint());
+                this.pasosCurva = 0;
+                break;
+            case HerramientaDibujo.RECTANGLE:
+                this.forma = new MiRectangulo(this.color, this.grosor,
+                                         this.transparente, this.alisado, 
+                                         this.relleno, evt.getPoint(), 
+                                         evt.getPoint());
+                this.pasosCurva = 0;
+                break;
+            case HerramientaDibujo.ELLIPSE:
+                this.forma = new MiElipse(this.color, this.grosor,
+                                         this.transparente, this.alisado, 
+                                         this.relleno, evt.getPoint(), 
+                                         evt.getPoint());
+                this.pasosCurva = 0;
+                break;
+            case HerramientaDibujo.QUADCURVE:
+                if (this.pasosCurva%2 == 0) {
+                    this.forma = new MiCurva(this.color, this.grosor, 
+                                         this.transparente, this.alisado, 
+                                         evt.getPoint(), evt.getPoint(), 
+                                         evt.getPoint());
+                    ((MiCurva) forma).setpControl(false);
+                } else {
+                    this.forma = this.vShape.getLast();
+                    ((MiCurva) forma).setpControl(true);
+                }
+                this.pasosCurva++;
+                break;
+            }
+            if (!((this.forma instanceof MiCurva) && (this.pasosCurva%2 == 0))) {   
+                this.vShape.add(forma);
+            }
+        }
+    }//GEN-LAST:event_formMousePressed
+
+    private void formMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseDragged
+        if (this.mover) {
+            if (this.forma != null && this.puntoAncla != null) {
+                this.moverFiguraConAncla(evt.getPoint());
+            }
+        } else {
+            this.forma.updateShape(evt.getPoint());
+        }
+        this.repaint();
+    }//GEN-LAST:event_formMouseDragged
+
+    private void formMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseReleased
+        if (this.mover) {
+            this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        }
+    }//GEN-LAST:event_formMouseReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
