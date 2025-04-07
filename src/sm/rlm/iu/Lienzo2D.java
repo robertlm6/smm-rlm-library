@@ -19,6 +19,13 @@ import sm.rlm.graficos.MiRectangulo;
 import sm.rlm.graficos.MiShape;
 
 /**
+ * La clase Lienzo2D representa un componente de dibujo interactivo que permite
+ * al usuario crear, mover y manipular formas personalizadas en un lienzo.
+ * Soporta características como color, relleno, grosor de línea, transparencia y
+ * alisado.
+ *
+ * Las figuras dibujadas se almacenan en una lista y se renderizan en orden. Se
+ * puede seleccionar una figura y moverla usando un punto de ancla.
  *
  * @author rober
  */
@@ -43,6 +50,11 @@ public class Lienzo2D extends javax.swing.JPanel {
         initComponents();
     }
     
+    /**
+     * Pinta todos los elementos de la lista de figuras en el lienzo.
+     *
+     * @param g el contexto gráfico proporcionado por el sistema para dibujar.
+     */
     @Override
     public void paint(Graphics g) {
         super.paint(g);
@@ -53,6 +65,13 @@ public class Lienzo2D extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Retorna la figura que contiene el punto dado, buscando desde la figura
+     * superior.
+     *
+     * @param p el punto a verificar dentro de las figuras.
+     * @return la figura que contiene el punto, o null si ninguna lo contiene.
+     */
     private MiShape getSelectedShape(Point2D p) {
         List<MiShape> reversedList = this.vShape.reversed();
         for (MiShape s: reversedList) {
@@ -62,6 +81,12 @@ public class Lienzo2D extends javax.swing.JPanel {
         return null;
     }
     
+    /**
+     * Mueve la figura actualmente seleccionada de acuerdo al desplazamiento
+     * calculado entre el nuevo punto y el punto ancla.
+     *
+     * @param pEvt el nuevo punto del evento de movimiento.
+     */
     private void moverFiguraConAncla(Point2D pEvt) {
         double dx = pEvt.getX() - this.puntoAncla.getX();
         double dy = pEvt.getY() - this.puntoAncla.getY();
@@ -75,58 +100,128 @@ public class Lienzo2D extends javax.swing.JPanel {
         this.puntoAncla = pEvt;
     }
 
+    /**
+     * Obtiene la herramienta de dibujo actual.
+     *
+     * @return la herramienta de dibujo seleccionada.
+     */
     public HerramientaDibujo getHerramienta() {
         return herramienta;
     }
 
+    /**
+     * Establece la herramienta de dibujo.
+     *
+     * @param herramienta la herramienta de dibujo a establecer.
+     */
     public void setHerramienta(HerramientaDibujo herramienta) {
         this.herramienta = herramienta;
     }
 
+    /**
+     * Obtiene el color actual de dibujo.
+     *
+     * @return el color seleccionado.
+     */
     public Color getColor() {
         return color;
     }
 
+    /**
+     * Establece el color de dibujo.
+     *
+     * @param color el nuevo color a utilizar.
+     */
     public void setColor(Color color) {
         this.color = color;
     }
 
+    /**
+     * Indica si las figuras se deben rellenar.
+     *
+     * @return true si se deben rellenar, false en caso contrario.
+     */
     public Boolean getRelleno() {
         return relleno;
     }
 
+    /**
+     * Establece si las figuras deben ser rellenadas.
+     *
+     * @param relleno true para rellenar, false para contorno solamente.
+     */
     public void setRelleno(Boolean relleno) {
         this.relleno = relleno;
     }
 
+    /**
+     * Indica si la funcionalidad de mover figuras está activada.
+     *
+     * @return true si se puede mover, false en caso contrario.
+     */
     public Boolean getMover() {
         return mover;
     }
 
+    /**
+     * Establece si las figuras pueden ser movidas.
+     *
+     * @param mover true para permitir movimiento, false para desactivarlo.
+     */
     public void setMover(Boolean mover) {
         this.mover = mover;
     }
 
+    /**
+     * Indica si se debe aplicar alisado al dibujar las figuras.
+     *
+     * @return true si se debe alisar, false en caso contrario.
+     */
     public Boolean getAlisado() {
         return alisado;
     }
 
+    /**
+     * Establece si se debe aplicar alisado en el renderizado de figuras.
+     *
+     * @param alisado true para activar alisado, false para desactivarlo.
+     */
     public void setAlisado(Boolean alisado) {
         this.alisado = alisado;
     }
 
+    /**
+     * Indica si el dibujo es transparente.
+     *
+     * @return true si es transparente, false si es opaco.
+     */
     public Boolean getTransparente() {
         return transparente;
     }
 
+    /**
+     * Establece la transparencia del dibujo.
+     *
+     * @param transparente true para hacer transparente, false para opaco.
+     */
     public void setTransparente(Boolean transparente) {
         this.transparente = transparente;
     }
 
+    /**
+     * Obtiene el grosor de trazo actual.
+     *
+     * @return el grosor del trazo.
+     */
     public Integer getGrosor() {
         return grosor;
     }
 
+    /**
+     * Establece el grosor del trazo para el dibujo.
+     *
+     * @param grosor el valor de grosor a establecer.
+     */
     public void setGrosor(Integer grosor) {
         this.grosor = grosor;
     }
