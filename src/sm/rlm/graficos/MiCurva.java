@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.QuadCurve2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Representa una curva cuadrática de Bézier como una implementación concreta de {@link MiShape}.
@@ -118,6 +119,11 @@ public class MiCurva extends MiShape{
         } else {
             this.geomCurva.setCurve(this.geomCurva.getP1(), pEnd, this.geomCurva.getP2());
         }
+    }
+    
+    @Override
+    protected Rectangle2D getBounds() {
+        return this.geomCurva.getBounds();
     }
 
     /**

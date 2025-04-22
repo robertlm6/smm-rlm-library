@@ -6,9 +6,11 @@ package sm.rlm.iu;
 
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.Point2D;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
 import sm.rlm.enums.HerramientaDibujo;
@@ -17,6 +19,7 @@ import sm.rlm.graficos.MiElipse;
 import sm.rlm.graficos.MiLinea;
 import sm.rlm.graficos.MiRectangulo;
 import sm.rlm.graficos.MiShape;
+import sm.rlm.graficos.MiShapeRellenable;
 
 /**
  * La clase Lienzo2D representa un componente de dibujo interactivo que permite
@@ -35,14 +38,19 @@ public class Lienzo2D extends javax.swing.JPanel {
     private MiShape forma = new MiLinea();
     private HerramientaDibujo herramienta = HerramientaDibujo.LINE;
     private Color color = Color.BLACK;
-    private Integer grosor = 0;
+    private Integer grosor = 5;
     private Boolean relleno = false;
     private Boolean mover = false;
+    private Boolean fijar = false;
+    private Boolean borrar = false;
     private Boolean alisado = false;
     private Boolean transparente = false;
     
     private Integer pasosCurva = 0;
     private Point2D puntoAncla = null;
+    
+    private BufferedImage img;
+    private MiShape seleccionada = null;
     /**
      * Creates new form Lienzo2D
      */
@@ -60,6 +68,8 @@ public class Lienzo2D extends javax.swing.JPanel {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
         
+        if (this.img != null) g2d.drawImage(img, 0, 0, this);
+        
         for(MiShape s: vShape) {
             s.draw(g2d);
         }
@@ -75,10 +85,47 @@ public class Lienzo2D extends javax.swing.JPanel {
     private MiShape getSelectedShape(Point2D p) {
         List<MiShape> reversedList = this.vShape.reversed();
         for (MiShape s: reversedList) {
-            if (s.contains(p)) return s;
+            if (s.contains(p)) {
+                return s;
+            }
         }
         
         return null;
+    }
+    
+    private void selectShape() {
+        if (this.seleccionada != null) {
+            this.seleccionada.setSelected(false);
+        }
+        
+        this.seleccionada = this.forma;
+        if (this.seleccionada != null){
+            this.seleccionada.setSelected(true);
+        }
+        repaint();
+    }
+    
+    private void unselectShape() {
+        if (this.seleccionada != null) {
+            this.seleccionada.setSelected(false);
+            this.seleccionada = null;
+            repaint();
+        }
+    }
+    
+    private void volcarFigura(MiShape figura) {
+        Graphics2D g2d = (Graphics2D) this.getImg().getGraphics();
+
+        if (g2d != null) {
+            figura.draw(g2d);
+            this.vShape.remove(figura);
+            repaint();
+        }
+    }
+
+    private void borrarFigura(MiShape figura) {
+        this.vShape.remove(figura);
+        repaint();
     }
     
     /**
@@ -98,6 +145,30 @@ public class Lienzo2D extends javax.swing.JPanel {
         this.forma.setLocation(nuevaPos);
 
         this.puntoAncla = pEvt;
+    }
+    
+    public BufferedImage getPaintedImage() {
+        BufferedImage imgout = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
+        
+        Graphics2D g2dImagen = imgout.createGraphics();
+        
+        if (img != null) g2dImagen.drawImage(img, 0, 0, this);
+        for (MiShape s: vShape) {
+            s.draw(g2dImagen);
+        }
+        
+        return imgout;
+    }
+
+    public BufferedImage getImg() {
+        return img;
+    }
+
+    public void setImg(BufferedImage img) {
+        this.img = img;
+        if (img != null) {
+            setPreferredSize(new Dimension(img.getWidth(), img.getHeight()));
+        }
     }
 
     /**
@@ -134,6 +205,11 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setColor(Color color) {
         this.color = color;
+        
+        if (this.mover && this.seleccionada != null) {
+            this.seleccionada.setColor(color);
+            repaint();
+        }
     }
 
     /**
@@ -152,6 +228,11 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setRelleno(Boolean relleno) {
         this.relleno = relleno;
+        
+        if (this.mover && this.seleccionada != null) {
+            ((MiShapeRellenable) this.seleccionada).setRellena(relleno);
+            repaint();
+        }
     }
 
     /**
@@ -169,6 +250,9 @@ public class Lienzo2D extends javax.swing.JPanel {
      * @param mover true para permitir movimiento, false para desactivarlo.
      */
     public void setMover(Boolean mover) {
+        if (!mover) {
+            this.unselectShape();
+        }
         this.mover = mover;
     }
 
@@ -188,6 +272,11 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setAlisado(Boolean alisado) {
         this.alisado = alisado;
+        
+        if (this.mover && this.seleccionada != null) {
+            this.seleccionada.setRender(alisado);
+            repaint();
+        }
     }
 
     /**
@@ -206,6 +295,11 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setTransparente(Boolean transparente) {
         this.transparente = transparente;
+        
+        if (this.mover && this.seleccionada != null) {
+            this.seleccionada.setComp(transparente);
+            repaint();
+        }
     }
 
     /**
@@ -224,6 +318,27 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setGrosor(Integer grosor) {
         this.grosor = grosor;
+        
+        if (this.mover && this.seleccionada != null) {
+            this.seleccionada.setStroke(grosor);
+            repaint();
+        }
+    }
+
+    public Boolean getFijar() {
+        return fijar;
+    }
+
+    public void setFijar(Boolean fijar) {
+        this.fijar = fijar;
+    }
+
+    public Boolean getBorrar() {
+        return borrar;
+    }
+
+    public void setBorrar(Boolean borrar) {
+        this.borrar = borrar;
     }
 
     /**
@@ -235,9 +350,13 @@ public class Lienzo2D extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        setBackground(new java.awt.Color(255, 255, 255));
         addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             public void mouseDragged(java.awt.event.MouseEvent evt) {
                 formMouseDragged(evt);
+            }
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                formMouseMoved(evt);
             }
         });
         addMouseListener(new java.awt.event.MouseAdapter() {
@@ -265,6 +384,8 @@ public class Lienzo2D extends javax.swing.JPanel {
         if (this.mover) {
             this.forma = this.getSelectedShape(evt.getPoint());
             if(this.forma != null) {
+                //Falsa quitar el cuadro al salir del modo "mover/edicion"
+                this.selectShape();
                 this.puntoAncla = evt.getPoint();
             }
             this.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
@@ -326,6 +447,18 @@ public class Lienzo2D extends javax.swing.JPanel {
             this.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
     }//GEN-LAST:event_formMouseReleased
+
+    private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
+        MiShape figura = this.getSelectedShape(evt.getPoint());
+        
+        if (fijar && figura != null) {
+            this.volcarFigura(figura);
+        }
+        
+        if (borrar && figura != null) {
+            this.borrarFigura(figura);
+        }
+    }//GEN-LAST:event_formMouseMoved
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

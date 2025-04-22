@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Representa una línea como una implementación concreta de {@link MiShape}.
@@ -101,6 +102,11 @@ public class MiLinea extends MiShape{
     @Override
     public void updateShape(Point2D pEnd) {
         this.geomLinea.setLine(this.geomLinea.getP1(), pEnd);
+    }
+    
+    @Override
+    protected Rectangle2D getBounds() {
+        return this.geomLinea.getBounds();
     }
     
     /**

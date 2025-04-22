@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 
 /**
  * Representa una elipse como una forma rellenable en el lienzo.
@@ -109,5 +110,10 @@ public class MiElipse extends MiShapeRellenable{
     @Override
     public void updateShape(Point2D pEnd) {
         this.geomElipse.setFrameFromDiagonal(this.pressedPoint, pEnd);
+    }
+    
+    @Override
+    protected Rectangle2D getBounds() {
+        return this.geomElipse.getBounds2D();
     }
 }

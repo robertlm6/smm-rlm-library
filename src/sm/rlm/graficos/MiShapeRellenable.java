@@ -57,6 +57,9 @@ public abstract class MiShapeRellenable extends MiShape{
             this.fillShape(g2d);
         }
         this.drawShape(g2d);
+        if (this.selected) {
+            this.drawBounds(g2d);
+        }
     }
     
     /**

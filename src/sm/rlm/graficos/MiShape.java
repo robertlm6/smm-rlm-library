@@ -12,6 +12,9 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Clase abstracta que representa una forma básica dentro del lienzo.
@@ -29,6 +32,8 @@ public abstract class MiShape {
     protected Composite comp;
     protected RenderingHints render;
     
+    protected Boolean selected = false;
+    
     /**
      * Constructor por defecto.
      */
@@ -44,14 +49,9 @@ public abstract class MiShape {
      */
     public MiShape(Color color, Integer grosor, Boolean transparente, Boolean alisada) {
         this.color = color;
-        this.stroke = new BasicStroke(grosor);
-        
-        this.comp = transparente 
-                ? AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)
-                : AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
-        
-        this.render = new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
-                alisada ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
+        this.setStroke(grosor);
+        this.setComp(transparente);
+        this.setRender(alisada);
     }
     
     /**
@@ -66,6 +66,9 @@ public abstract class MiShape {
         g2d.setComposite(comp);
         g2d.setRenderingHints(render);
         drawShape(g2d);
+        if (this.selected) {
+            this.drawBounds(g2d);
+        }
     }
     
     /**
@@ -103,6 +106,37 @@ public abstract class MiShape {
      * @param pEnd el punto final del evento de modificación.
      */
     public abstract void updateShape(Point2D pEnd);
+    
+    protected abstract Rectangle2D getBounds();
+    
+    protected void drawBounds(Graphics2D g2d) {
+        Stroke originalStroke = g2d.getStroke();
+        g2d.setColor(Color.RED);
+        float dash[] = {5f, 5f};
+        g2d.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT,
+                BasicStroke.JOIN_BEVEL, 0, dash, 0));
+
+        Rectangle2D bounds = getBounds();
+        g2d.draw(bounds);
+
+        int size = 15;
+        for (Point2D p : getEsquinas(bounds)) {
+            g2d.draw(new Rectangle2D.Double(p.getX() - size / 2, p.getY() - size / 2, size, size));
+        }
+
+        g2d.setStroke(originalStroke);
+    }
+
+    protected List<Point2D> getEsquinas(Rectangle2D bounds) {
+        List<Point2D> puntos = new ArrayList<>();
+        puntos.add(new Point2D.Double(bounds.getX(), bounds.getY()));
+        puntos.add(new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY()));
+        puntos.add(new Point2D.Double(bounds.getX(), bounds.getY() + bounds.getHeight()));
+        puntos.add(new Point2D.Double(bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight()));
+        return puntos;
+    }
+
+    //protected abstract List<Point> getEsquinas(Rectangle bounds);
 
     /**
      * Obtiene el color de la forma.
@@ -136,8 +170,8 @@ public abstract class MiShape {
      *
      * @param stroke el nuevo objeto Stroke.
      */
-    public void setStroke(Stroke stroke) {
-        this.stroke = stroke;
+    public void setStroke(Integer grosor) {
+        this.stroke = new BasicStroke(grosor);
     }
 
     /**
@@ -154,8 +188,10 @@ public abstract class MiShape {
      *
      * @param comp el nuevo objeto Composite.
      */
-    public void setComp(Composite comp) {
-        this.comp = comp;
+    public void setComp(Boolean transparente) {
+        this.comp = transparente 
+                ? AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)
+                : AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
     }
 
     /**
@@ -172,7 +208,16 @@ public abstract class MiShape {
      *
      * @param render el nuevo objeto RenderingHints.
      */
-    public void setRender(RenderingHints render) {
-        this.render = render;
+    public void setRender(Boolean alisada) {
+        this.render = new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
+                alisada ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
+    }
+
+    public Boolean getSelected() {
+        return selected;
+    }
+
+    public void setSelected(Boolean selected) {
+        this.selected = selected;
     }
 }

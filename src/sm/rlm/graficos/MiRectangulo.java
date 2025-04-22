@@ -6,6 +6,7 @@ package sm.rlm.graficos;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -111,5 +112,10 @@ public class MiRectangulo extends MiShapeRellenable{
     @Override
     public void updateShape(Point2D pEnd) {
         this.geomRectangulo.setFrameFromDiagonal(this.pressedPoint, pEnd);
+    }
+    
+    @Override
+    protected Rectangle2D getBounds() {
+        return this.geomRectangulo.getBounds2D();
     }
 }
