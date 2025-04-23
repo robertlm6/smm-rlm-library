@@ -125,7 +125,14 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     private File sonidoEliminar;
     
+    /**
+     * Coordenada X actual del ratón sobre el lienzo.
+     */
     private int x = 0;
+
+    /**
+     * Coordenada Y actual del ratón sobre el lienzo.
+     */
     private int y = 0;
     
     /**
@@ -556,18 +563,38 @@ public class Lienzo2D extends javax.swing.JPanel {
         this.borrar = borrar;
     }
 
+    /**
+     * Devuelve la coordenada X actual del ratón sobre el lienzo.
+     *
+     * @return la posición horizontal del ratón.
+     */
     public int getXCoord() {
         return x;
     }
 
+    /**
+     * Establece la coordenada X del ratón sobre el lienzo.
+     *
+     * @param x la nueva posición horizontal del ratón.
+     */
     public void setXCoord(int x) {
         this.x = x;
     }
 
+    /**
+     * Devuelve la coordenada Y actual del ratón sobre el lienzo.
+     *
+     * @return la posición vertical del ratón.
+     */
     public int getYCoord() {
         return y;
     }
 
+    /**
+     * Establece la coordenada Y del ratón sobre el lienzo.
+     *
+     * @param y la nueva posición vertical del ratón.
+     */
     public void setYCoord(int y) {
         this.y = y;
     }
