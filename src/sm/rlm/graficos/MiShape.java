@@ -201,7 +201,7 @@ public abstract class MiShape {
     /**
      * Establece el trazo de la forma.
      *
-     * @param stroke el nuevo objeto Stroke.
+     * @param grosor
      */
     public void setStroke(Integer grosor) {
         this.stroke = new BasicStroke(grosor);
@@ -219,7 +219,7 @@ public abstract class MiShape {
     /**
      * Establece la configuración de transparencia de la forma.
      *
-     * @param comp el nuevo objeto Composite.
+     * @param transparente
      */
     public void setComp(Boolean transparente) {
         this.comp = transparente 
@@ -239,7 +239,7 @@ public abstract class MiShape {
     /**
      * Establece las pistas de renderizado.
      *
-     * @param render el nuevo objeto RenderingHints.
+     * @param alisada
      */
     public void setRender(Boolean alisada) {
         this.render = new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
