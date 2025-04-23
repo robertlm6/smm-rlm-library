@@ -112,6 +112,11 @@ public class MiElipse extends MiShapeRellenable{
         this.geomElipse.setFrameFromDiagonal(this.pressedPoint, pEnd);
     }
     
+    /**
+     * Obtiene el rectángulo delimitador que contiene completamente la elipse.
+     *
+     * @return un {@link Rectangle2D} que representa los límites de la elipse.
+     */
     @Override
     protected Rectangle2D getBounds() {
         return this.geomElipse.getBounds2D();

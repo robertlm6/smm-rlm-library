@@ -104,6 +104,11 @@ public class MiLinea extends MiShape{
         this.geomLinea.setLine(this.geomLinea.getP1(), pEnd);
     }
     
+    /**
+     * Obtiene el rectángulo delimitador que encierra completamente la línea.
+     *
+     * @return un {@link Rectangle2D} que representa los límites de la línea.
+     */
     @Override
     protected Rectangle2D getBounds() {
         return this.geomLinea.getBounds();

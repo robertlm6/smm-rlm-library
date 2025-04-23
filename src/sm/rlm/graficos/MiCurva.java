@@ -24,7 +24,7 @@ import java.awt.geom.Rectangle2D;
 public class MiCurva extends MiShape{
 
     /**
-     * La curva cuadrática de Bézier representada como una {@link QuadCurve2D}.
+     * La curva cuadrática representada como una {@link QuadCurve2D}.
      */
     private QuadCurve2D geomCurva;
     
@@ -121,6 +121,11 @@ public class MiCurva extends MiShape{
         }
     }
     
+    /**
+     * Obtiene el rectángulo delimitador que encierra completamente la curva.
+     *
+     * @return un {@link Rectangle2D} que representa los límites de la curva.
+     */
     @Override
     protected Rectangle2D getBounds() {
         return this.geomCurva.getBounds();

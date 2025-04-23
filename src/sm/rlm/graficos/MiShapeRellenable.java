@@ -19,7 +19,16 @@ import java.awt.geom.Point2D;
  * @author rober
  */
 public abstract class MiShapeRellenable extends MiShape{
+    
+    /**
+     * Indica si la forma debe rellenarse además de dibujar el contorno.
+     */
     protected Boolean rellena;
+
+    /**
+     * Punto de referencia utilizado, por ejemplo, en operaciones de
+     * redimensionado o dibujo.
+     */
     protected Point2D pressedPoint;
     
     /**

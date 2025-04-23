@@ -27,11 +27,31 @@ import java.util.List;
  * @author rober
  */
 public abstract class MiShape {
+
+    /**
+     * Color de la forma utilizada para el contorno o relleno.
+     */
     protected Color color;
+
+    /**
+     * Trazo de la forma, define el grosor y estilo de línea.
+     */
     protected Stroke stroke;
+
+    /**
+     * Composición de transparencia de la forma.
+     */
     protected Composite comp;
+
+    /**
+     * Pistas de renderizado (como alisado).
+     */
     protected RenderingHints render;
-    
+
+    /**
+     * Indica si la forma está seleccionada. Si es true, se muestra un marco
+     * visual.
+     */
     protected Boolean selected = false;
     
     /**
@@ -109,6 +129,12 @@ public abstract class MiShape {
     
     protected abstract Rectangle2D getBounds();
     
+    /**
+     * Dibuja el marco de selección alrededor de la forma si está seleccionada.
+     * Incluye un rectángulo punteado y pequeños rectángulos en las esquinas.
+     *
+     * @param g2d el contexto gráfico 2D.
+     */
     protected void drawBounds(Graphics2D g2d) {
         Stroke originalStroke = g2d.getStroke();
         g2d.setColor(Color.RED);
@@ -127,6 +153,13 @@ public abstract class MiShape {
         g2d.setStroke(originalStroke);
     }
 
+    /**
+     * Devuelve una lista con las esquinas del rectángulo delimitador de la
+     * forma.
+     *
+     * @param bounds los límites actuales de la forma.
+     * @return lista de puntos representando las cuatro esquinas.
+     */
     protected List<Point2D> getEsquinas(Rectangle2D bounds) {
         List<Point2D> puntos = new ArrayList<>();
         puntos.add(new Point2D.Double(bounds.getX(), bounds.getY()));
@@ -213,10 +246,21 @@ public abstract class MiShape {
                 alisada ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
     }
 
+    /**
+     * Obtiene el estado de selección de la forma.
+     *
+     * @return true si la forma está seleccionada, false en caso contrario.
+     */
     public Boolean getSelected() {
         return selected;
     }
 
+    /**
+     * Establece si la forma está seleccionada. Las formas seleccionadas
+     * mostrarán un marco visual en el lienzo.
+     *
+     * @param selected true para marcar como seleccionada, false para desmarcar.
+     */
     public void setSelected(Boolean selected) {
         this.selected = selected;
     }

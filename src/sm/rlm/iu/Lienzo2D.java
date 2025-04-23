@@ -4,15 +4,21 @@
  */
 package sm.rlm.iu;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.Shape;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import sm.rlm.enums.HerramientaDibujo;
 import sm.rlm.graficos.MiCurva;
 import sm.rlm.graficos.MiElipse;
@@ -33,24 +39,95 @@ import sm.rlm.graficos.MiShapeRellenable;
  * @author rober
  */
 public class Lienzo2D extends javax.swing.JPanel {
-    
+
+    /**
+     * Lista de figuras dibujadas en el lienzo.
+     */
     private List<MiShape> vShape = new ArrayList();
+    
+    /**
+     * Figura en construcción o seleccionada para manipulación.
+     */
     private MiShape forma = new MiLinea();
+    
+    /**
+     * Herramienta de dibujo activa.
+     */
     private HerramientaDibujo herramienta = HerramientaDibujo.LINE;
+
+    /**
+     * Color de trazo actual.
+     */
     private Color color = Color.BLACK;
+
+    /**
+     * Grosor de la línea de dibujo.
+     */
     private Integer grosor = 5;
+
+    /**
+     * Indica si las figuras deben dibujarse rellenas.
+     */
     private Boolean relleno = false;
+
+    /**
+     * Indica si la herramienta de movimiento está activa.
+     */
     private Boolean mover = false;
+
+    /**
+     * Indica si la opción de fijar figura está activa.
+     */
     private Boolean fijar = false;
+
+    /**
+     * Indica si la opción de borrar figura está activa.
+     */
     private Boolean borrar = false;
+
+    /**
+     * Indica si se aplica alisado a las figuras.
+     */
     private Boolean alisado = false;
+
+    /**
+     * Indica si se aplica transparencia al dibujo.
+     */
     private Boolean transparente = false;
-    
+
+    /**
+     * Número de pasos para representar una curva (si aplica).
+     */
     private Integer pasosCurva = 0;
+
+    /**
+     * Punto de referencia para mover figuras.
+     */
     private Point2D puntoAncla = null;
-    
+
+    /**
+     * Imagen donde se realiza el dibujo final.
+     */
     private BufferedImage img;
+
+    /**
+     * Figura actualmente seleccionada en el lienzo.
+     */
     private MiShape seleccionada = null;
+
+    /**
+     * Archivo de sonido reproducido al fijar una figura.
+     */
+    private File sonidoFijar;
+
+    /**
+     * Archivo de sonido reproducido al eliminar una figura.
+     */
+    private File sonidoEliminar;
+    
+    private int x = 0;
+    private int y = 0;
+    
     /**
      * Creates new form Lienzo2D
      */
@@ -68,7 +145,12 @@ public class Lienzo2D extends javax.swing.JPanel {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
         
-        if (this.img != null) g2d.drawImage(img, 0, 0, this);
+        if (this.img != null) {
+            g2d.drawImage(img, 0, 0, this);
+            
+            dibujarMarco(g2d);
+            aplicarClip(g2d);
+        }
         
         for(MiShape s: vShape) {
             s.draw(g2d);
@@ -93,6 +175,10 @@ public class Lienzo2D extends javax.swing.JPanel {
         return null;
     }
     
+    /**
+     * Marca como seleccionada la figura actual, deseleccionando cualquier otra
+     * previamente seleccionada.
+     */
     private void selectShape() {
         if (this.seleccionada != null) {
             this.seleccionada.setSelected(false);
@@ -105,6 +191,9 @@ public class Lienzo2D extends javax.swing.JPanel {
         repaint();
     }
     
+    /**
+     * Deselecciona la figura actualmente seleccionada.
+     */
     private void unselectShape() {
         if (this.seleccionada != null) {
             this.seleccionada.setSelected(false);
@@ -113,19 +202,69 @@ public class Lienzo2D extends javax.swing.JPanel {
         }
     }
     
+    /**
+     * Dibuja una figura sobre el buffer de imagen y la elimina de la lista de
+     * figuras activas. Reproduce un sonido de confirmación si está disponible.
+     *
+     * @param figura La figura a volcar en la imagen final.
+     */
     private void volcarFigura(MiShape figura) {
         Graphics2D g2d = (Graphics2D) this.getImg().getGraphics();
 
         if (g2d != null) {
             figura.draw(g2d);
+            this.play(sonidoFijar);
             this.vShape.remove(figura);
             repaint();
         }
     }
 
+    /**
+     * Elimina una figura de la lista y reproduce un sonido de eliminación si
+     * está disponible.
+     *
+     * @param figura La figura a eliminar del lienzo.
+     */
     private void borrarFigura(MiShape figura) {
         this.vShape.remove(figura);
+        this.play(sonidoEliminar);
         repaint();
+    }
+    
+    /**
+     * Establece el área de recorte del contexto gráfico al tamaño de la imagen.
+     *
+     * @param g2d El contexto gráfico donde se aplicará el recorte.
+     */
+    private void aplicarClip(Graphics2D g2d) {
+        Shape clipArea = new Rectangle(0, 0, img.getWidth(), img.getHeight());
+        g2d.clip(clipArea);
+    }
+
+    /**
+     * Dibuja un marco punteado alrededor de la imagen.
+     *
+     * @param g2d El contexto gráfico donde se dibujará el marco.
+     */
+    private void dibujarMarco(Graphics2D g2d) {
+        float[] patronDiscontinuidad = {15.0f, 15.0f};
+        g2d.setStroke(new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, patronDiscontinuidad, 0.0f));
+        g2d.drawRect(0, 0, img.getWidth(), img.getHeight());
+    }
+    
+    /**
+     * Reproduce un archivo de sonido utilizando el sistema de audio.
+     *
+     * @param f Archivo de sonido a reproducir.
+     */
+    private void play(File f) {
+        try {
+            Clip sound = AudioSystem.getClip();
+            sound.open(AudioSystem.getAudioInputStream(f));
+            sound.start();
+        } catch (Exception ex) {
+            System.err.println(ex);
+        }
     }
     
     /**
@@ -147,23 +286,78 @@ public class Lienzo2D extends javax.swing.JPanel {
         this.puntoAncla = pEvt;
     }
     
+    /**
+     * Devuelve una imagen del contenido actual del lienzo, incluyendo la imagen
+     * base y todas las figuras dibujadas en orden.
+     *
+     * @return una nueva imagen con todo el contenido renderizado del lienzo.
+     */
     public BufferedImage getPaintedImage() {
         BufferedImage imgout = new BufferedImage(img.getWidth(), img.getHeight(), img.getType());
-        
+
         Graphics2D g2dImagen = imgout.createGraphics();
-        
-        if (img != null) g2dImagen.drawImage(img, 0, 0, this);
-        for (MiShape s: vShape) {
+
+        if (img != null) {
+            g2dImagen.drawImage(img, 0, 0, this);
+        }
+        for (MiShape s : vShape) {
             s.draw(g2dImagen);
         }
-        
+
         return imgout;
     }
 
+    /**
+     * Obtiene el archivo de sonido utilizado al fijar una figura al lienzo.
+     *
+     * @return el archivo de sonido para la acción de fijado.
+     */
+    public File getSonidoFijar() {
+        return sonidoFijar;
+    }
+
+    /**
+     * Establece el archivo de sonido que se reproducirá al fijar una figura.
+     *
+     * @param sonidoFijar archivo de sonido para la acción de fijado.
+     */
+    public void setSonidoFijar(File sonidoFijar) {
+        this.sonidoFijar = sonidoFijar;
+    }
+
+    /**
+     * Obtiene el archivo de sonido utilizado al eliminar una figura del lienzo.
+     *
+     * @return el archivo de sonido para la acción de eliminación.
+     */
+    public File getSonidoEliminar() {
+        return sonidoEliminar;
+    }
+
+    /**
+     * Establece el archivo de sonido que se reproducirá al eliminar una figura.
+     *
+     * @param sonidoEliminar archivo de sonido para la acción de eliminación.
+     */
+    public void setSonidoEliminar(File sonidoEliminar) {
+        this.sonidoEliminar = sonidoEliminar;
+    }
+
+    /**
+     * Obtiene la imagen base sobre la que se dibujan las figuras.
+     *
+     * @return la imagen actualmente asociada al lienzo.
+     */
     public BufferedImage getImg() {
         return img;
     }
 
+    /**
+     * Establece la imagen base del lienzo. También ajusta el tamaño preferido
+     * del componente.
+     *
+     * @param img la imagen a establecer como fondo del lienzo.
+     */
     public void setImg(BufferedImage img) {
         this.img = img;
         if (img != null) {
@@ -325,20 +519,57 @@ public class Lienzo2D extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Obtiene el valor actual de la opción de fijar figuras.
+     *
+     * @return true si la opción de fijar está activada, false en caso
+     * contrario.
+     */
     public Boolean getFijar() {
         return fijar;
     }
 
+    /**
+     * Establece si las figuras deben fijarse al lienzo.
+     *
+     * @param fijar true para activar fijado, false para desactivarlo.
+     */
     public void setFijar(Boolean fijar) {
         this.fijar = fijar;
     }
 
+    /**
+     * Obtiene el estado de la opción de borrar figuras.
+     *
+     * @return true si el modo borrar está activado, false en caso contrario.
+     */
     public Boolean getBorrar() {
         return borrar;
     }
 
+    /**
+     * Establece si se activa el modo de borrado de figuras.
+     *
+     * @param borrar true para activar borrado, false para desactivarlo.
+     */
     public void setBorrar(Boolean borrar) {
         this.borrar = borrar;
+    }
+
+    public int getXCoord() {
+        return x;
+    }
+
+    public void setXCoord(int x) {
+        this.x = x;
+    }
+
+    public int getYCoord() {
+        return y;
+    }
+
+    public void setYCoord(int y) {
+        this.y = y;
     }
 
     /**
@@ -458,6 +689,9 @@ public class Lienzo2D extends javax.swing.JPanel {
         if (borrar && figura != null) {
             this.borrarFigura(figura);
         }
+        
+        this.x = evt.getPoint().x;
+        this.y = evt.getPoint().y;
     }//GEN-LAST:event_formMouseMoved
 
 

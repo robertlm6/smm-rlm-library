@@ -6,7 +6,6 @@ package sm.rlm.graficos;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
-import java.awt.Rectangle;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -114,6 +113,12 @@ public class MiRectangulo extends MiShapeRellenable{
         this.geomRectangulo.setFrameFromDiagonal(this.pressedPoint, pEnd);
     }
     
+    /**
+     * Obtiene el rectángulo delimitador del rectángulo (coincide con la forma
+     * en sí).
+     *
+     * @return un {@link Rectangle2D} que representa los límites del rectángulo.
+     */
     @Override
     protected Rectangle2D getBounds() {
         return this.geomRectangulo.getBounds2D();
