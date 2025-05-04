@@ -37,16 +37,22 @@ public abstract class MiShape {
      * Trazo de la forma, define el grosor y estilo de línea.
      */
     protected Stroke stroke;
+    
+    private int grosor;
 
     /**
      * Composición de transparencia de la forma.
      */
     protected Composite comp;
+    
+    private Boolean transparente;
 
     /**
      * Pistas de renderizado (como alisado).
      */
     protected RenderingHints render;
+    
+    private Boolean alisada;
 
     /**
      * Indica si la forma está seleccionada. Si es true, se muestra un marco
@@ -204,6 +210,7 @@ public abstract class MiShape {
      * @param grosor
      */
     public void setStroke(Integer grosor) {
+        this.grosor = grosor;
         this.stroke = new BasicStroke(grosor);
     }
 
@@ -222,6 +229,7 @@ public abstract class MiShape {
      * @param transparente
      */
     public void setComp(Boolean transparente) {
+        this.transparente = transparente;
         this.comp = transparente 
                 ? AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5f)
                 : AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.0f);
@@ -242,6 +250,7 @@ public abstract class MiShape {
      * @param alisada
      */
     public void setRender(Boolean alisada) {
+        this.alisada = alisada;
         this.render = new RenderingHints(RenderingHints.KEY_ANTIALIASING, 
                 alisada ? RenderingHints.VALUE_ANTIALIAS_ON : RenderingHints.VALUE_ANTIALIAS_OFF);
     }
@@ -263,5 +272,17 @@ public abstract class MiShape {
      */
     public void setSelected(Boolean selected) {
         this.selected = selected;
+    }
+
+    public Boolean getTransparente() {
+        return transparente;
+    }
+
+    public Boolean getAlisada() {
+        return alisada;
+    }
+
+    public int getGrosor() {
+        return grosor;
     }
 }

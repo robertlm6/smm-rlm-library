@@ -20,6 +20,8 @@ import java.util.List;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import sm.rlm.enums.HerramientaDibujo;
+import sm.rlm.eventos.LienzoEvent;
+import sm.rlm.eventos.LienzoListener;
 import sm.rlm.graficos.MiCurva;
 import sm.rlm.graficos.MiElipse;
 import sm.rlm.graficos.MiLinea;
@@ -135,6 +137,8 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     private int y = 0;
     
+    ArrayList<LienzoListener> lienzoEventListeners = new ArrayList();
+    
     /**
      * Creates new form Lienzo2D
      */
@@ -206,6 +210,36 @@ public class Lienzo2D extends javax.swing.JPanel {
             this.seleccionada.setSelected(false);
             this.seleccionada = null;
             repaint();
+        }
+    }
+    
+    public void addLienzoListener(LienzoListener listener) {
+        if (listener != null) {
+            this.lienzoEventListeners.add(listener);
+        }
+    }
+    
+    private void notifyShapeAddedEvent(LienzoEvent evt) {
+        if (!lienzoEventListeners.isEmpty()) {
+            for (LienzoListener listener : lienzoEventListeners) {
+                listener.shapeAdded(evt);
+            }
+        }
+    }
+
+    private void notifyShapeSelectedEvent(LienzoEvent evt) {
+        if (!lienzoEventListeners.isEmpty()) {
+            for (LienzoListener listener : lienzoEventListeners) {
+                listener.shapeSelected(evt);
+            }
+        }
+    }
+    
+    private void notifyEditingModeExited(LienzoEvent evt) {
+        if (!lienzoEventListeners.isEmpty()) {
+            for (LienzoListener listener : lienzoEventListeners) {
+                listener.editingModeExited(evt);
+            }
         }
     }
     
@@ -388,6 +422,7 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setHerramienta(HerramientaDibujo herramienta) {
         this.herramienta = herramienta;
+        this.notifyEditingModeExited(new LienzoEvent(this, null));
     }
 
     /**
@@ -543,6 +578,7 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setFijar(Boolean fijar) {
         this.fijar = fijar;
+        this.notifyEditingModeExited(new LienzoEvent(this, null));
     }
 
     /**
@@ -561,6 +597,7 @@ public class Lienzo2D extends javax.swing.JPanel {
      */
     public void setBorrar(Boolean borrar) {
         this.borrar = borrar;
+        this.notifyEditingModeExited(new LienzoEvent(this, null));
     }
 
     /**
@@ -642,9 +679,9 @@ public class Lienzo2D extends javax.swing.JPanel {
         if (this.mover) {
             this.forma = this.getSelectedShape(evt.getPoint());
             if(this.forma != null) {
-                //Falsa quitar el cuadro al salir del modo "mover/edicion"
                 this.selectShape();
                 this.puntoAncla = evt.getPoint();
+                this.notifyShapeSelectedEvent(new LienzoEvent(this, this.forma));
             }
             this.setCursor(Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR));
         } else {
@@ -685,6 +722,7 @@ public class Lienzo2D extends javax.swing.JPanel {
             }
             if (!((this.forma instanceof MiCurva) && (this.pasosCurva%2 == 0))) {   
                 this.vShape.add(forma);
+                this.notifyShapeAddedEvent(new LienzoEvent(this, forma));
             }
         }
     }//GEN-LAST:event_formMousePressed
