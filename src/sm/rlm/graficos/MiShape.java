@@ -38,6 +38,9 @@ public abstract class MiShape {
      */
     protected Stroke stroke;
     
+    /**
+     * Grosor del trazo de la forma.
+     */
     private int grosor;
 
     /**
@@ -45,6 +48,9 @@ public abstract class MiShape {
      */
     protected Composite comp;
     
+    /**
+     * Indica si la forma es transparente.
+     */
     private Boolean transparente;
 
     /**
@@ -52,6 +58,9 @@ public abstract class MiShape {
      */
     protected RenderingHints render;
     
+    /**
+     * Indica si se debe aplicar alisado al renderizar la forma.
+     */
     private Boolean alisada;
 
     /**
@@ -133,8 +142,13 @@ public abstract class MiShape {
      */
     public abstract void updateShape(Point2D pEnd);
     
+    /**
+     * Obtiene el rectángulo delimitador de la forma.
+     *
+     * @return el objeto Rectangle2D que representa los límites de la forma.
+     */
     protected abstract Rectangle2D getBounds();
-    
+
     /**
      * Dibuja el marco de selección alrededor de la forma si está seleccionada.
      * Incluye un rectángulo punteado y pequeños rectángulos en las esquinas.
@@ -274,14 +288,29 @@ public abstract class MiShape {
         this.selected = selected;
     }
 
+    /**
+     * Indica si la forma tiene transparencia activada.
+     *
+     * @return true si es transparente, false en caso contrario.
+     */
     public Boolean getTransparente() {
         return transparente;
     }
 
+    /**
+     * Indica si el alisado está activado para la forma.
+     *
+     * @return true si el alisado está activado, false en caso contrario.
+     */
     public Boolean getAlisada() {
         return alisada;
     }
 
+    /**
+     * Obtiene el grosor actual del trazo.
+     *
+     * @return el grosor como valor entero.
+     */
     public int getGrosor() {
         return grosor;
     }
